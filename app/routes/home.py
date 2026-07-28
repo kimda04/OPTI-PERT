@@ -5,6 +5,8 @@ from app.services.excel_service import generate_excel
 from app.services.pdf_service import generate_pdf
 from app.services.graph_plot_service import export_graph_png
 from app.services.gantt_service import export_gantt_png
+from app.ai.speech_service import SpeechService
+from app.ai.vision_service import VisionService
 
 from flask import (
     Blueprint,
@@ -17,10 +19,18 @@ from flask import (
 from app.models.activity import Activity
 
 from app.services.project_service import (
-    get_project,
+get_project,
     add_activity,
     remove_activity
 )
+
+import os
+import uuid
+from flask import request, jsonify
+from app.ai.vision_service import VisionService
+from app.ai.pert_parser import PertParser
+from flask import render_template
+from app.ai.openai_service import OpenAIService
 
 home_bp = Blueprint("home", __name__)
 
@@ -104,3 +114,98 @@ def export_gantt_png_route():
         as_attachment=True,
         download_name="Gantt.png"
     )
+    
+@home_bp.route("/speech/test")
+def speech_test():
+
+    text = SpeechService.transcribe_audio(
+        "audio.wav"
+    )
+
+    return {
+        "text": text
+    }
+    
+@home_bp.route("/vision/test")
+def vision_test():
+
+    text = VisionService.extract_text(
+        "tabla.jpg"
+    )
+
+    return {
+        "text": text
+    }
+    
+    
+@home_bp.route("/vision/upload", methods=["POST"])
+def vision_upload():
+
+    image = request.files.get(
+        "image"
+    )
+
+
+    if not image:
+
+        return jsonify(
+            {
+                "error":
+                "No se recibió imagen"
+            }
+        ), 400
+
+
+    filename = (
+        str(uuid.uuid4())
+        + ".jpg"
+    )
+
+
+    filepath = os.path.join(
+        "app",
+        "exports",
+        filename
+    )
+
+
+    image.save(filepath)
+
+
+    text = VisionService.extract_text(
+        filepath
+    )
+
+
+    activities = PertParser.parse_ocr_text(
+        text
+    )
+
+
+    os.remove(filepath)
+
+
+    return jsonify(
+        {
+            "ocr_text": text,
+            "activities": activities
+        }
+    )
+    
+@home_bp.route("/ocr")
+def ocr_page():
+
+    return render_template(
+        "ocr_test.html"
+    )
+    
+@home_bp.route("/ai/test")
+def ai_test():
+
+    response = OpenAIService.ask(
+        "Explica qué es la ruta crítica en PERT"
+    )
+
+    return {
+        "respuesta": response
+    }

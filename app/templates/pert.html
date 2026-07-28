@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">
+        Calculadora PERT
+    </h2>
+
+    <div class="d-flex gap-2">
+        <a href="/export/excel" class="btn btn-success">
+            <i class="bi bi-file-earmark-excel"></i>
+            Excel
+        </a>
+
+        <a href="/export/pdf" class="btn btn-danger">
+            <i class="bi bi-file-earmark-pdf"></i>
+            PDF
+        </a>
+    </div>
+</div>
+
+<div class="card dashboard-card">
+    <div class="card-body">
+        <h4 class="mb-4">
+            Nueva Actividad
+        </h4>
+
+        <form action="/activity/add" method="POST">
+            <div class="row g-3">
+                <div class="col-md-2">
+                    <input
+                        class="form-control"
+                        name="name"
+                        placeholder="Actividad"
+                        required>
+                </div>
+
+                <div class="col-md-3">
+                    <input
+                        class="form-control"
+                        name="description"
+                        placeholder="Descripción">
+                </div>
+
+                <div class="col">
+                    <input
+                        type="number"
+                        step="0.01"
+                        class="form-control"
+                        name="optimistic"
+                        placeholder="Optimista"
+                        required>
+                </div>
+
+                <div class="col">
+                    <input
+                        type="number"
+                        step="0.01"
+                        class="form-control"
+                        name="most_likely"
+                        placeholder="Probable"
+                        required>
+                </div>
+
+                <div class="col">
+                    <input
+                        type="number"
+                        step="0.01"
+                        class="form-control"
+                        name="pessimistic"
+                        placeholder="Pesimista"
+                        required>
+                </div>
+
+                <div class="col-md-2">
+                    <input
+                        class="form-control"
+                        name="predecessors"
+                        placeholder="A,B,C">
+                </div>
+
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100">
+                        Agregar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card dashboard-card mt-4">
+    <div class="card-body">
+        <h4 class="mb-3">
+            Actividades
+        </h4>
+
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Act.</th>
+                    <th>TE</th>
+                    <th>ES</th>
+                    <th>EF</th>
+                    <th>LS</th>
+                    <th>LF</th>
+                    <th>Slack</th>
+                    <th>Pred.</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for activity in project.activities %}
+                <tr {% if activity.slack == 0 %}class="table-danger"{% endif %}>
+                    <td>{{ activity.name }}</td>
+                    <td>{{ activity.expected_time }}</td>
+                    <td>{{ activity.es }}</td>
+                    <td>{{ activity.ef }}</td>
+                    <td>{{ activity.ls }}</td>
+                    <td>{{ activity.lf }}</td>
+                    <td>{{ activity.slack }}</td>
+                    <td>{{ activity.predecessors|join(", ") }}</td>
+
+                    <td>
+                        <a
+                            href="/activity/delete/{{ activity.name }}"
+                            class="btn btn-danger btn-sm">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="9" class="text-center">
+                        No existen actividades.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

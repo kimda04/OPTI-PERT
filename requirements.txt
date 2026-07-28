@@ -1,0 +1,12 @@
+azure-cognitiveservices-speech
+azure-ai-vision-imageanalysis
+Flask
+python-dotenv
+openai
+networkx
+plotly
+pandas
+numpy
+openpyxl
+matplotlib
+kaleido

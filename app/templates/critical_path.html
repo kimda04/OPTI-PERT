@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Ruta crítica</h2>
+
+    <a href="/export/png/pert" class="btn btn-primary">
+        <i class="bi bi-image"></i>
+        Exportar PNG
+    </a>
+</div>
+
+
+<div class="card dashboard-card">
+    <div class="card-body">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Actividad</th>
+                    <th>Tiempo esperado</th>
+                    <th>Inicio temprano</th>
+                    <th>Fin temprano</th>
+                    <th>Inicio tardío</th>
+                    <th>Fin tardío</th>
+                    <th>Holgura</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for activity in project.activities %}
+                <tr {% if activity.slack == 0 %}class="table-danger"{% endif %}>
+                    <td>{{ activity.name }}</td>
+                    <td>{{ activity.expected_time }}</td>
+                    <td>{{ activity.es }}</td>
+                    <td>{{ activity.ef }}</td>
+                    <td>{{ activity.ls }}</td>
+                    <td>{{ activity.lf }}</td>
+                    <td>{{ activity.slack }}</td>
+                    <td>
+                        <button 
+                        class="btn btn-warning btn-sm"
+                        data-bs-toggle="modal"
+                        data-bs-target="#edit{{ activity.name }}">
+                        <i class="bi bi-pencil"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card dashboard-card mt-4">
+    <div class="card-body">
+        <h4 class="mb-4">
+            Red PERT
+        </h4>
+
+        {{ graph_html|safe }}
+    </div>
+</div>
+
+
+{% for activity in project.activities %}
+
+<div class="modal fade" id="edit{{ activity.name }}">
+
+<div class="modal-dialog">
+
+<div class="modal-content">
+
+<form action="/activity/edit/{{ activity.name }}" method="POST">
+
+
+<div class="modal-header">
+
+<h5 class="modal-title">
+Editar {{ activity.name }}
+</h5>
+
+<button 
+type="button"
+class="btn-close"
+data-bs-dismiss="modal">
+</button>
+
+</div>
+
+
+<div class="modal-body">
+
+
+<input 
+class="form-control mb-2"
+name="description"
+value="{{ activity.description }}"
+placeholder="Descripción">
+
+
+<input 
+class="form-control mb-2"
+name="optimistic"
+type="number"
+step="0.01"
+value="{{ activity.optimistic }}">
+
+
+<input 
+class="form-control mb-2"
+name="most_likely"
+type="number"
+step="0.01"
+value="{{ activity.most_likely }}">
+
+
+<input 
+class="form-control mb-2"
+name="pessimistic"
+type="number"
+step="0.01"
+value="{{ activity.pessimistic }}">
+
+
+<input 
+class="form-control mb-2"
+name="predecessors"
+value="{{ activity.predecessors|join(',') }}"
+placeholder="A,B,C">
+
+
+</div>
+
+
+<div class="modal-footer">
+
+<button class="btn btn-primary">
+Guardar cambios
+</button>
+
+</div>
+
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+
+{% endblock %}
