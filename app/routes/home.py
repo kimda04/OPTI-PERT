@@ -7,6 +7,7 @@ from app.services.graph_plot_service import export_graph_png
 from app.services.gantt_service import export_gantt_png
 from app.ai.speech_service import SpeechService
 from app.ai.vision_service import VisionService
+from app.services.pert_context_service import PertContextService
 
 from flask import (
     Blueprint,
@@ -199,11 +200,24 @@ def ocr_page():
         "ocr_test.html"
     )
     
+    
 @home_bp.route("/ai/test")
 def ai_test():
 
+    project_context = PertContextService.generate_context()
+
+    question = """
+    Analiza el proyecto actual.
+
+    Explica:
+    - posibles problemas
+    - actividades importantes
+    - recomendaciones
+    """
+
     response = OpenAIService.ask(
-        "Explica qué es la ruta crítica en PERT"
+        question,
+        project_context
     )
 
     return {

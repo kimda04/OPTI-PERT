@@ -2,6 +2,7 @@ class ContextBuilder:
 
     @staticmethod
     def build_project_context(project):
+
         context = """
 Eres un asistente especializado exclusivamente en PERT y CPM.
 
@@ -11,22 +12,28 @@ la información proporcionada del proyecto actual.
 No inventes actividades ni datos que no existan.
 
 Proyecto actual:
+
 """
 
         if not project:
             context += """
 No existe ningún proyecto cargado.
 """
+
             return context
+
 
         context += f"""
 Duración total del proyecto:
 {getattr(project, 'duration', 'No calculada')} días
 
+
 Actividades:
 """
 
+
         for activity in project.activities:
+
             context += f"""
 
 Actividad:
@@ -67,15 +74,20 @@ Crítica:
 
 Predecesores:
 {activity.predecessors}
+
 """
 
+
         if hasattr(project, "critical_path"):
+
             context += f"""
 
 Ruta crítica:
 
 {project.critical_path}
+
 """
+
 
         context += """
 
@@ -85,5 +97,6 @@ Responde siempre:
 - explicando con lenguaje académico.
 - relacionando las respuestas con PERT/CPM.
 """
+
 
         return context
