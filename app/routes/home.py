@@ -1,3 +1,5 @@
+from email.mime import text
+
 from app.services.graph_plot_service import generate_graph
 from app.services.gantt_service import generate_gantt
 from flask import send_file
@@ -8,6 +10,10 @@ from app.services.gantt_service import export_gantt_png
 from app.ai.speech_service import SpeechService
 from app.ai.vision_service import VisionService
 from app.services.pert_context_service import PertContextService
+from app.ai.pert_parser import PertParser
+from app.services.project_service import add_activity
+from werkzeug.utils import secure_filename
+from app.services.calendar_service import generate_calendar
 
 from flask import (
     Blueprint,
@@ -38,11 +44,13 @@ home_bp = Blueprint("home", __name__)
 
 @home_bp.route("/")
 def home():
+
     return render_template(
         "index.html",
         project=get_project(),
         graph_html=generate_graph(),
-        gantt_html=generate_gantt()
+        gantt_html=generate_gantt(),
+        calendar_events=generate_calendar()
     )
 
 @home_bp.route("/activity/add", methods=["POST"])
@@ -126,6 +134,59 @@ def speech_test():
     return {
         "text": text
     }
+
+
+@home_bp.route("/speech")
+def speech_page():
+
+    return render_template(
+        "speech.html"
+    )
+
+
+
+@home_bp.route("/speech/upload", methods=["POST"])
+def speech_upload():
+
+    audio = request.files.get(
+        "audio"
+    )
+
+
+    if not audio:
+
+        return redirect(
+            url_for("home.speech_page")
+        )
+
+
+    filename = secure_filename(
+        audio.filename
+    )
+
+
+    filepath = os.path.join(
+        "app",
+        "exports",
+        filename
+    )
+
+
+    audio.save(filepath)
+
+
+    text = SpeechService.transcribe_audio(
+        filepath
+    )
+
+
+    os.remove(filepath)
+
+
+    return render_template(
+        "speech.html",
+        text=text
+    )
     
 @home_bp.route("/vision/test")
 def vision_test():
@@ -186,11 +247,10 @@ def vision_upload():
     os.remove(filepath)
 
 
-    return jsonify(
-        {
-            "ocr_text": text,
-            "activities": activities
-        }
+    return render_template(
+        "ocr_test.html",
+        ocr_text=text,
+        activities=activities
     )
     
 @home_bp.route("/ocr")
@@ -223,3 +283,105 @@ def ai_test():
     return {
         "respuesta": response
     }
+    
+@home_bp.route("/ai", methods=["GET","POST"])
+def ai_page():
+
+    response=None
+
+    if request.method=="POST":
+
+        question=request.form["question"]
+
+        project_context=str(get_project())
+
+
+        response=OpenAIService.ask(
+            question,
+            project_context
+        )
+
+
+    return render_template(
+        "ai.html",
+        response=response
+    )
+    
+@home_bp.route("/activity/edit/<name>", methods=["GET","POST"])
+def activity_edit(name):
+
+    project = get_project()
+
+    activity = next(
+        (
+            a for a in project.activities
+            if a.name == name
+        ),
+        None
+    )
+
+    if not activity:
+        return redirect(url_for("home.home"))
+
+
+    if request.method == "POST":
+
+        activity.description = request.form["description"]
+
+        activity.optimistic = float(
+            request.form["optimistic"]
+        )
+
+        activity.most_likely = float(
+            request.form["most_likely"]
+        )
+
+        activity.pessimistic = float(
+            request.form["pessimistic"]
+        )
+
+        activity.predecessors = [
+            x.strip()
+            for x in request.form["predecessors"].split(",")
+            if x.strip()
+        ]
+
+        return redirect(
+            url_for("home.home")
+        )
+
+
+    return render_template(
+        "edit_activity.html",
+        activity=activity
+    )
+    
+
+@home_bp.route("/calendar")
+def calendar():
+
+    return render_template(
+        "calendar.html"
+    )
+
+
+
+@home_bp.route("/gantt")
+def gantt_page():
+
+    return render_template(
+        "gantt.html",
+        gantt_html=generate_gantt()
+    )
+
+
+
+@home_bp.route("/critical-path")
+def critical_path():
+
+    project = get_project()
+
+    return render_template(
+        "critical_path.html",
+        project=project
+    )

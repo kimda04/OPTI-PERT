@@ -39,8 +39,16 @@ def build_gantt_figure():
 
     fig.update_layout(
         template="plotly_white",
-        height=500,
-        margin=dict(l=20, r=20, t=20, b=20)
+        height=600,
+        title="Cronograma del proyecto - Gantt",
+        xaxis_title="Días",
+        yaxis_title="Actividades",
+        margin=dict(
+            l=40,
+            r=40,
+            t=60,
+            b=40
+        )
     )
 
     return fig

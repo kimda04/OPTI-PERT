@@ -1,90 +1,86 @@
 {% extends "base.html" %}
 
-{% block content %}
 
-<h2 class="fw-bold mb-4">
-    Inteligencia Artificial
-</h2>
+{% block title %}
 
-<div class="row g-4">
-    <div class="col-lg-4">
-        <div class="card dashboard-card h-100">
-            <div class="card-body">
-                <h4>
-                    <i class="bi bi-mic-fill"></i>
-                    Speech
-                </h4>
-
-                <p>
-                    Convierte voz en actividades PERT.
-                </p>
-
-                <button
-                    class="btn btn-primary w-100"
-                    id="recordButton">
-                    🎤 Hablar
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-lg-4">
-        <div class="card dashboard-card h-100">
-            <div class="card-body">
-                <h4>
-                    <i class="bi bi-camera-fill"></i>
-                    OCR
-                </h4>
-
-                <p>
-                    Extrae actividades desde una fotografía.
-                </p>
-
-                <button
-                    class="btn btn-outline-primary w-100"
-                    disabled>
-                    Próximamente
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-lg-4">
-        <div class="card dashboard-card h-100">
-            <div class="card-body">
-                <h4>
-                    <i class="bi bi-robot"></i>
-                    Chat IA
-                </h4>
-
-                <p>
-                    Consulta inteligente sobre tu proyecto.
-                </p>
-
-                <button
-                    class="btn btn-outline-primary w-100"
-                    disabled>
-                    Próximamente
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="card dashboard-card mt-4">
-    <div class="card-body">
-        <h5>
-            Resultado
-        </h5>
-
-        <pre id="speechResult" class="mb-0"></pre>
-    </div>
-</div>
+OPTI-PERT IA
 
 {% endblock %}
 
-{% block scripts %}
 
-<script src="{{ url_for('static', filename='js/speech.js') }}"></script>
+
+{% block content %}
+
+
+<div class="card dashboard-card">
+
+
+<div class="card-body">
+
+
+<h3>
+
+<i class="bi bi-robot"></i>
+
+Asistente IA PERT
+
+</h3>
+
+
+<hr>
+
+
+<form method="POST" action="/ai">
+
+
+<textarea 
+class="form-control mb-3"
+name="question"
+rows="4"
+placeholder="Pregunta sobre el proyecto..."
+required></textarea>
+
+
+<button class="btn btn-primary">
+
+<i class="bi bi-send"></i>
+
+Consultar IA
+
+</button>
+
+
+</form>
+
+
+{% if response %}
+
+
+<div class="alert alert-light mt-4">
+
+
+<h5>
+
+Respuesta:
+
+</h5>
+
+
+{{ response }}
+
+
+</div>
+
+
+{% endif %}
+
+
+
+</div>
+
+
+</div>
+
+
 
 {% endblock %}

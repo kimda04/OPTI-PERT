@@ -3,69 +3,141 @@ import re
 
 class PertParser:
 
-    @staticmethod
-    def parse_ocr_text(text):
 
-        lines = [
-            line.strip()
-            for line in text.split("\n")
-            if line.strip()
-        ]
+    @staticmethod
+    def parse_speech_text(text):
 
         activities = []
 
-        i = 0
+        lines = text.split("\n")
 
-        while i < len(lines):
+        for line in lines:
 
-            line = lines[i]
+            line = line.strip()
 
+            if not line:
+                continue
+
+            match = re.search(
+                r"([A-Za-z])\s.*?(\d+)",
+                line
+            )
+
+            if match:
+
+                name = match.group(1)
+
+                duration = float(
+                    match.group(2)
+                )
+
+                predecessor = []
+
+                dependency = re.search(
+                    r"depende de ([A-Za-z])",
+                    line,
+                    re.IGNORECASE
+                )
+
+                if dependency:
+                    predecessor.append(
+                        dependency.group(1)
+                    )
+
+                activities.append(
+                    {
+                        "name": name,
+                        "description": "Importada por voz",
+                        "optimistic": duration,
+                        "most_likely": duration,
+                        "pessimistic": duration,
+                        "predecessors": predecessor
+                    }
+                )
+
+        return activities
+
+
+
+    @staticmethod
+    def parse_ocr_text(text):
+
+        activities = []
+
+        lines = text.split("\n")
+
+
+        for line in lines:
+
+            line = line.strip()
+
+
+            if not line:
+                continue
+
+
+            # Ignorar encabezados de tabla
             if (
-                len(line) == 1
-                and line.isalpha()
+                "ID" in line.upper()
+                or "ACTIVIDAD" in line.upper()
+                or "DURACIÓN" in line.upper()
             ):
-
-                activity_id = line
-
-                if i + 2 < len(lines):
-
-                    name = lines[i + 1]
-
-                    duration = lines[i + 2]
+                continue
 
 
-                    if duration.isdigit():
+            # Buscar filas tipo:
+            # A Actividad A 3 -
+            # B Diseño sistema 5 A
 
-                        predecessors = []
-
-
-                        if i + 3 < len(lines):
-
-                            possible_pred = lines[i + 3]
-
-                            if (
-                                possible_pred != "-"
-                                and len(possible_pred) == 1
-                            ):
-                                predecessors.append(
-                                    possible_pred
-                                )
+            match = re.search(
+                r"([A-Za-z])\s+(.+?)\s+(\d+)\s*([A-Za-z,-]*)$",
+                line
+            )
 
 
-                        activities.append(
-                            {
-                                "id": activity_id,
-                                "name": name,
-                                "duration": int(duration),
-                                "predecessors": predecessors
-                            }
-                        )
-
-                        i += 4
-                        continue
+            if match:
 
 
-            i += 1
+                name = match.group(1)
+
+                description = match.group(2).strip()
+
+                duration = float(
+                    match.group(3)
+                )
+
+
+                predecessors_text = match.group(4)
+
+
+                predecessors=[]
+
+
+                if predecessors_text:
+
+                    predecessors=[
+                        p.strip()
+                        for p in predecessors_text.split(",")
+                    ]
+
+
+                activities.append(
+                    {
+                        "name": name,
+
+                        "description": description,
+
+                        "duration": duration,
+
+                        "optimistic": duration,
+
+                        "most_likely": duration,
+
+                        "pessimistic": duration,
+
+                        "predecessors": predecessors
+                    }
+                )
 
 
         return activities

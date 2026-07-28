@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>OPTI-PERT Speech</title>
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+
+</head>
+
+
+<body>
+
+
+<nav class="navbar navbar-dark top-navbar">
+
+<div class="container-fluid">
+
+<span class="navbar-brand fw-bold">
+
+<i class="bi bi-mic"></i>
+
+OPTI-PERT Speech
+
+</span>
+
+</div>
+
+</nav>
+
+<a href="/" class="btn btn-outline-primary mb-3">
+    <i class="bi bi-arrow-left"></i>
+    Volver al Dashboard
+</a>
+
+<div class="container mt-5">
+
+
+<div class="card dashboard-card">
+
+
+<div class="card-body">
+
+
+<h2 class="fw-bold">
+
+<i class="bi bi-mic-fill"></i>
+
+Importar proyecto por voz
+
+</h2>
+
+
+<p class="text-muted">
+
+Describe tus actividades PERT mediante un archivo de audio.
+
+</p>
+
+
+
+<form action="/speech/upload" method="POST" enctype="multipart/form-data">
+
+
+<div class="mb-4">
+
+
+<label class="form-label">
+
+Seleccionar audio
+
+</label>
+
+
+<input
+
+type="file"
+
+class="form-control"
+
+name="audio"
+
+accept=".wav,.mp3"
+
+required
+
+>
+
+
+</div>
+
+
+
+<button class="btn btn-primary">
+
+<i class="bi bi-cloud-upload"></i>
+
+Analizar audio
+
+</button>
+
+
+
+</form>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+{% if text %}
+
+
+<div class="card dashboard-card mt-4">
+
+
+<div class="card-body">
+
+
+<h4>
+
+Transcripción
+
+</h4>
+
+
+<div class="alert alert-light">
+
+
+{{ text }}
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+{% endif %}
+
+
+
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+
+</body>
+
+
+</html>

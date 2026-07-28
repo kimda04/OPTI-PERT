@@ -1,23 +1,39 @@
+# Entorno virtual
 venv/
-env/
 .env
-.venv/
+
+# Python
 __pycache__/
-*.py[cod]
-*$py.class
-.env
-*.key
-*.pem
-*.wav
-*.mp3
-*.m4a
-*.jpg
-*.png
-*.jpeg
+*.pyc
+*.pyo
+*.pyd
+
+# Flask
+instance/
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# Archivos temporales
+*.log
+*.tmp
+
+# Exportaciones
 app/exports/*
 !app/exports/.gitkeep
-.vscode/
-.idea/
-.DS_Store
+
+# Excel, PDF e imágenes generadas
+*.xlsx
+*.pdf
+*.png
+
+# Variables de entorno
+.env
+.env.*
+
+# Windows
 Thumbs.db
-instance/*
+Desktop.ini
