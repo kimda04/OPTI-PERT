@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OPTI-PERT</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark top-navbar">
+    <div class="container-fluid">
+        <span class="navbar-brand fw-bold">OPTI-PERT</span>
+    </div>
+</nav>
+
+<div class="d-flex">
+
+    <aside class="sidebar">
+        <h5 class="mb-4">Menú</h5>
+
+        <a href="#"><i class="bi bi-house-door"></i> Inicio</a>
+        <a href="#"><i class="bi bi-diagram-3"></i> Calculadora PERT</a>
+        <a href="#"><i class="bi bi-signpost-split"></i> Ruta crítica</a>
+        <a href="#"><i class="bi bi-bar-chart"></i> Gantt</a>
+        <a href="#"><i class="bi bi-calendar3"></i> Calendario</a>
+        <a href="#"><i class="bi bi-robot"></i> IA</a>
+        <a href="#"><i class="bi bi-gear"></i> Configuración</a>
+    </aside>
+
+    <main class="content">
+
+        <div class="container-fluid">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold mb-0">Dashboard</h2>
+
+                <div class="d-flex gap-2">
+
+                    <a href="/export/excel" class="btn btn-success">
+                        <i class="bi bi-file-earmark-excel"></i>
+                        Excel
+                    </a>
+
+                    <a href="/export/pdf" class="btn btn-danger">
+                        <i class="bi bi-file-earmark-pdf"></i>
+                        PDF
+                    </a>
+
+                    <a href="/export/png/pert" class="btn btn-primary">
+                        <i class="bi bi-diagram-3"></i>
+                        PERT PNG
+                    </a>
+
+                    <a href="/export/png/gantt" class="btn btn-primary">
+                        <i class="bi bi-bar-chart"></i>
+                        Gantt PNG
+                    </a>
+
+                </div>
+            </div>
+
+            <div class="row g-4">
+
+                <div class="col-lg-3">
+                    <div class="card dashboard-card">
+                        <div class="card-body">
+                            <h6>Proyectos</h6>
+                            <h2>0</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3">
+                    <div class="card dashboard-card">
+                        <div class="card-body">
+                            <h6>Actividades</h6>
+                            <h2>{{ project.activities|length }}</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3">
+                    <div class="card dashboard-card">
+                        <div class="card-body">
+                            <h6>Ruta crítica</h6>
+                            <h5>{{ project.critical_path|join(" → ") if project.critical_path else "--" }}</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3">
+                    <div class="card dashboard-card">
+                        <div class="card-body">
+                            <h6>Duración</h6>
+                            <h2>{{ project.total_duration }}</h2>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <hr class="my-5">
+
+            <div class="card dashboard-card">
+                <div class="card-body">
+
+                    <h4 class="mb-4">Nueva Actividad</h4>
+
+                    <form action="/activity/add" method="POST">
+
+                        <div class="row g-3">
+
+                            <div class="col-md-2">
+                                <input class="form-control" name="name" placeholder="Actividad" required>
+                            </div>
+
+                            <div class="col-md-3">
+                                <input class="form-control" name="description" placeholder="Descripción">
+                            </div>
+
+                            <div class="col">
+                                <input type="number" step="0.01" class="form-control" name="optimistic" placeholder="Optimista" required>
+                            </div>
+
+                            <div class="col">
+                                <input type="number" step="0.01" class="form-control" name="most_likely" placeholder="Probable" required>
+                            </div>
+
+                            <div class="col">
+                                <input type="number" step="0.01" class="form-control" name="pessimistic" placeholder="Pesimista" required>
+                            </div>
+
+                            <div class="col-md-2">
+                                <input class="form-control" name="predecessors" placeholder="A,B,C">
+                            </div>
+
+                            <div class="col-md-2">
+                                <button class="btn btn-primary w-100">Agregar</button>
+                            </div>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+            <div class="card dashboard-card mt-4">
+                <div class="card-body">
+
+                    <h4 class="mb-3">Actividades</h4>
+
+                    <table class="table table-hover align-middle">
+
+                        <thead>
+                        <tr>
+                            <th>Act.</th>
+                            <th>TE</th>
+                            <th>ES</th>
+                            <th>EF</th>
+                            <th>LS</th>
+                            <th>LF</th>
+                            <th>Slack</th>
+                            <th>Pred.</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+
+                        {% for activity in project.activities %}
+
+                        <tr {% if activity.slack==0 %}class="table-danger"{% endif %}>
+
+                        <td>{{ activity.name }}</td>
+
+                        <td>{{ activity.expected_time }}</td>
+
+                        <td>{{ activity.es }}</td>
+
+                        <td>{{ activity.ef }}</td>
+
+                        <td>{{ activity.ls }}</td>
+
+                        <td>{{ activity.lf }}</td>
+
+                        <td>{{ activity.slack }}</td>
+
+                        <td>{{ activity.predecessors|join(", ") }}</td>
+
+                        <td>
+                        <a href="/activity/delete/{{ activity.name }}" class="btn btn-danger btn-sm">
+                        <i class="bi bi-trash"></i>
+                        </a>
+                        </td>
+
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+
+                        <td colspan="9" class="text-center">
+
+                        No existen actividades.
+
+                        </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                    <div class="card dashboard-card mt-4">
+                        <div class="card-body">
+                            <h4 class="mb-4">Red PERT</h4>
+                            {{ graph_html|safe }}
+                        </div>
+                    </div>
+
+                    <div class="card dashboard-card mt-4">
+                        <div class="card-body">
+                            <h4 class="mb-4">Diagrama de Gantt</h4>
+                            {{ gantt_html|safe }}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

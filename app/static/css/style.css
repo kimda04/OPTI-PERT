@@ -1,0 +1,95 @@
+body{
+
+    background:#F5F3FF;
+
+    font-family:Segoe UI, sans-serif;
+
+    overflow-x:hidden;
+
+}
+
+/* Navbar */
+
+.top-navbar{
+
+    background:linear-gradient(
+        90deg,
+        #6C63FF,
+        #8B5CF6
+    );
+
+    height:65px;
+
+}
+
+/* Sidebar */
+
+.sidebar{
+
+    width:240px;
+
+    min-height:100vh;
+
+    background:white;
+
+    padding:25px;
+
+    box-shadow:0 0 20px rgba(0,0,0,.08);
+
+}
+
+.sidebar a{
+
+    display:block;
+
+    text-decoration:none;
+
+    color:#555;
+
+    padding:12px;
+
+    border-radius:12px;
+
+    margin-bottom:8px;
+
+    transition:.3s;
+
+}
+
+.sidebar a:hover{
+
+    background:#E9D5FF;
+
+    color:#6C63FF;
+
+}
+
+/* Contenido */
+
+.content{
+
+    flex:1;
+
+    padding:30px;
+
+}
+
+/* Cards */
+
+.dashboard-card{
+
+    border:none;
+
+    border-radius:18px;
+
+    box-shadow:0 8px 25px rgba(0,0,0,.08);
+
+    transition:.3s;
+
+}
+
+.dashboard-card:hover{
+
+    transform:translateY(-5px);
+
+}
